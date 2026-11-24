@@ -1,6 +1,7 @@
 <script lang="ts">
   import Scene from '../components/Scene.svelte';
   import Logo from '../components/Logo.svelte';
+  import Gift from '../components/Gift.svelte';
   import { go } from '../lib/router.svelte';
   import { hasSoloGame } from '../lib/solo.svelte';
 </script>
@@ -9,8 +10,11 @@
   <div class="home">
     <div class="logo-wrap">
       <Logo size="lg" />
-      <span class="gift g1" aria-hidden="true">🎁</span>
-      <span class="gift g2" aria-hidden="true">🎁</span>
+      <div class="gifts" aria-hidden="true">
+        <span class="g1"><Gift size={54} /></span>
+        <span class="g2"><Gift size={40} tone="green" /></span>
+        <span class="g3"><Gift size={46} tone="gold" /></span>
+      </div>
     </div>
     <div class="actions">
       <button class="btn btn-primary" onclick={() => go('/jugar')}>
@@ -33,34 +37,30 @@
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    gap: 64px;
-    padding-bottom: 110px;
+    gap: 28px;
+    padding-bottom: 120px;
   }
   .logo-wrap {
-    margin-top: 5vh;
-    position: relative;
-    transform: scale(1.12);
-    transform-origin: top center;
+    margin-top: 4vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
-  .gift {
-    position: absolute;
-    bottom: -34px;
-    font-size: 42px;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.35));
-  }
-  @media (max-width: 370px) {
-    .logo-wrap {
-      transform: none;
-    }
+  .gifts {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    margin-top: 6px;
+    filter: drop-shadow(0 6px 8px rgba(2, 26, 15, 0.35));
   }
   .g1 {
-    left: -18px;
-    transform: rotate(-10deg);
+    transform: rotate(-6deg);
   }
   .g2 {
-    right: -14px;
-    font-size: 34px;
-    transform: rotate(8deg);
+    transform: translateY(-2px);
+  }
+  .g3 {
+    transform: rotate(7deg);
   }
   .actions {
     width: 100%;

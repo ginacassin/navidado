@@ -1,24 +1,14 @@
 <script lang="ts">
+  import AvatarArt from './AvatarArt.svelte';
   let {
     emoji,
     size = 44,
     active = false,
-    dim = false,
-    ring = ''
-  }: { emoji: string; size?: number; active?: boolean; dim?: boolean; ring?: string } = $props();
-  const colors: Record<string, string> = {
-    '🎅': '#fde3e3', '🦌': '#f3e2cf', '🧝': '#dff3e5', '⛄': '#e3f0fb', '⭐': '#1f3b6b', '🍪': '#f7e1c6',
-    '🎄': '#dff3e5', '🔔': '#fdf1cc', '🧦': '#fde3e3', '🐧': '#e3f0fb', '🦉': '#efe3d6', '🍬': '#fbe3f1'
-  };
+    dim = false
+  }: { emoji: string; size?: number; active?: boolean; dim?: boolean } = $props();
 </script>
 
-<span
-  class="av"
-  class:active
-  class:dim
-  style="--sz:{size}px; background:{colors[emoji] ?? '#fff4e6'}; {ring ? `box-shadow: 0 0 0 3px ${ring}` : ''}"
-  aria-hidden="true">{emoji}</span
->
+<span class="av" class:active class:dim style="--sz:{size}px; font-size:{size}px" aria-hidden="true"><AvatarArt {emoji} /></span>
 
 <style>
   .av {
@@ -27,21 +17,26 @@
     width: var(--sz);
     height: var(--sz);
     border-radius: 50%;
-    font-size: calc(var(--sz) * 0.58);
-    line-height: 1;
     flex: none;
-    border: 2px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
-    transition: transform 0.2s;
+    background: #fff4e6;
+    box-shadow:
+      0 0 0 calc(var(--sz) * 0.05) #fff,
+      0 calc(var(--sz) * 0.06) calc(var(--sz) * 0.14) rgba(2, 26, 15, 0.35);
+    overflow: hidden;
+    transition:
+      transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.3),
+      box-shadow 0.25s,
+      filter 0.25s;
   }
   .active {
     box-shadow:
-      0 0 0 4px var(--dorado),
-      0 4px 14px rgba(0, 0, 0, 0.3);
-    transform: scale(1.12);
+      0 0 0 calc(var(--sz) * 0.05) #fff,
+      0 0 0 calc(var(--sz) * 0.1) var(--dorado),
+      0 0 calc(var(--sz) * 0.35) rgba(244, 180, 0, 0.7);
+    transform: scale(1.1);
   }
   .dim {
-    filter: grayscale(0.9);
-    opacity: 0.55;
+    filter: grayscale(0.85) brightness(0.9);
+    opacity: 0.6;
   }
 </style>

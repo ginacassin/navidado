@@ -1,6 +1,7 @@
 <script lang="ts">
   import { playerName, type GameState } from '../../shared/game';
   import Avatar from './Avatar.svelte';
+  import Gift from './Gift.svelte';
   import type { Snippet } from 'svelte';
 
   let { s, meId, actions }: { s: GameState; meId?: string; actions?: Snippet } = $props();
@@ -10,7 +11,7 @@
 </script>
 
 <div class="deal">
-  <div class="gift" aria-hidden="true">🎁</div>
+  <div class="gift"><Gift size={84} /></div>
   <h2 class="title">Reparto inicial</h2>
   {#if mine}
     <div class="card big">
@@ -44,7 +45,19 @@
     text-align: center;
   }
   .gift {
-    font-size: 64px;
+    display: flex;
+    justify-content: center;
+    filter: drop-shadow(0 8px 12px rgba(2, 26, 15, 0.4));
+    animation: wobble 2.4s ease-in-out infinite;
+  }
+  @keyframes wobble {
+    0%,
+    100% {
+      transform: rotate(-4deg);
+    }
+    50% {
+      transform: rotate(4deg) translateY(-4px);
+    }
   }
   .title {
     font-weight: 900;

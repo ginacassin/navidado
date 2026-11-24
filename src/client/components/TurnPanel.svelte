@@ -67,10 +67,10 @@
     </div>
   {/if}
 
-  <div class="dice"><Dice {faces} {face} rollKey={s.lastRoll?.seq ?? 0} size={168} /></div>
+  <div class="dice"><Dice {faces} {face} rollKey={s.lastRoll?.seq ?? 0} size={190} glow={canAct} onclick={canAct ? onroll : undefined} /></div>
 
   {#if myTurn}
-    <div class="btns">
+    <div class="btns" class:hidden={rolling}>
       <button class="btn btn-primary" disabled={!canAct} onclick={onroll}>Tirar el dado</button>
       <button class="btn btn-secondary" disabled={!canAct} onclick={onpass}>Paso</button>
     </div>
@@ -140,6 +140,9 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+  }
+  .btns.hidden {
+    visibility: hidden;
   }
   .btns .btn-secondary {
     min-height: 48px;

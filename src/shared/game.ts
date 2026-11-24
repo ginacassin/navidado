@@ -89,7 +89,7 @@ export const LIMITS = {
   chooseSeconds: [5, 30] as const
 };
 
-export const AVATARS = ['🎅', '🦌', '🧝', '⛄', '⭐', '🍪', '🎄', '🔔', '🧦', '🐧', '🦉', '🍬'];
+export const AVATARS = ['🎅', '🦌', '🧝', '⛄', '⭐', '🍪', '🐧', '🎄'];
 
 export interface Player {
   id: string;

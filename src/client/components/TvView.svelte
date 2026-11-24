@@ -7,6 +7,10 @@
   import QrCode from './QrCode.svelte';
   import Feed from './Feed.svelte';
   import ActionIcon from './ActionIcon.svelte';
+  import Gift from './Gift.svelte';
+  import Trophy from './Trophy.svelte';
+  import Lights from './Lights.svelte';
+  import Snow from './Snow.svelte';
 
   let { s, now, code }: { s: GameState; now: number; code: string } = $props();
   const ms = $derived(remainingMs(s, now));
@@ -20,7 +24,8 @@
 </script>
 
 <div class="tv {s.phase} t-{tst}" class:lastmin={s.phase === 'playing' && tst === 'last'}>
-  <div class="lights" aria-hidden="true"></div>
+  <Lights height={64} />
+  <Snow count={40} />
 
   {#if s.phase === 'lobby'}
     <div class="lobby">
@@ -41,7 +46,7 @@
   {:else if s.phase === 'deal'}
     <div class="deal">
       <Logo size="lg" tagline={false} />
-      <h2>🎁 Reparto inicial</h2>
+      <h2 class="with-ico"><Gift size={80} /> Reparto inicial</h2>
       <p class="sub">Mira tu móvil: te dice a quién darle tu regalo.</p>
       <div class="deal-grid">
         {#each s.deals as d}
@@ -83,7 +88,7 @@
             <Feed {s} max={5} />
           {/if}
         </div>
-        <div class="dice"><Dice {faces} {face} rollKey={s.lastRoll?.seq ?? 0} size={380} /></div>
+        <div class="dice"><Dice {faces} {face} rollKey={s.lastRoll?.seq ?? 0} size={470} /></div>
         <div class="side right">
           {#if current}
             <div class="card whose">
@@ -110,7 +115,7 @@
     </div>
   {:else if s.phase === 'finished'}
     <div class="fin">
-      <div class="trophy">🏆</div>
+      <div class="trophy"><Trophy size={150} /></div>
       <h2>¡Se acabó!</h2>
       <p class="sub">Así se quedan los regalos. Abridlos en este orden:</p>
       <div class="fin-grid">
@@ -118,7 +123,7 @@
           {@const p = s.players.find((x) => x.id === pid)}
           {@const g = giftOf(s, pid)}
           {#if p}
-            <div class="fin-item"><b>{i + 1}</b><Avatar emoji={p.avatar} size={48} /><span>{p.name}{#if g && s.config.showBroughtBy}<small>el regalo de {brought(g.id)}</small>{/if}</span>🎁</div>
+            <div class="fin-item"><b>{i + 1}</b><Avatar emoji={p.avatar} size={48} /><span>{p.name}{#if g && s.config.showBroughtBy}<small>el regalo de {brought(g.id)}</small>{/if}</span><Gift size={40} tone={i % 3 === 0 ? 'red' : i % 3 === 1 ? 'green' : 'gold'} /></div>
           {/if}
         {/each}
       </div>
@@ -133,8 +138,11 @@
     min-height: 100dvh;
     color: #fff;
     overflow: hidden;
-    padding: 3vh 3vw;
-    background: radial-gradient(ellipse at 50% 30%, #137a4e 0%, var(--verde) 45%, var(--verde-osc) 100%);
+    padding: 5vh 3vw 3vh;
+    background:
+      radial-gradient(circle at 10% 20%, rgba(255, 214, 102, 0.1) 0 60px, transparent 140px),
+      radial-gradient(circle at 90% 30%, rgba(255, 214, 102, 0.08) 0 80px, transparent 180px),
+      radial-gradient(ellipse at 50% 35%, #157f51 0%, var(--verde) 42%, #063722 100%);
     display: flex;
     flex-direction: column;
     font-size: clamp(14px, 1.15vw, 26px);
@@ -151,12 +159,14 @@
     height: 30vh;
     pointer-events: none;
   }
-  .lights {
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 40px;
-    background:
-      radial-gradient(circle at 22px 20px, #fff6c9 0 3.5px, #ffd54f 5px, rgba(244, 180, 0, 0.45) 9px, transparent 15px) 0 0 / 44px 40px repeat-x;
+  .tv > :global(:not(svg):not(.snow)) {
+    position: relative;
+    z-index: 1;
+  }
+  .with-ico {
+    display: flex;
+    align-items: center;
+    gap: 0.3em;
   }
   .tv :global(.chip.big) {
     font-size: 1.5em;
@@ -234,13 +244,17 @@
   .stage {
     flex: 1;
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     align-items: center;
     gap: 3vw;
   }
   .side h3 {
     font-weight: 900;
     margin-bottom: 0.6em;
+  }
+  .side.left {
+    max-width: 26em;
+    justify-self: end;
   }
   .side.right {
     display: flex;
@@ -385,7 +399,8 @@
     color: var(--tinta-suave);
   }
   .trophy {
-    font-size: 7em;
+    display: flex;
+    justify-content: center;
   }
   @media (max-width: 900px) {
     .tv {

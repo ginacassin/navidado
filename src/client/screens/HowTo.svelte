@@ -2,16 +2,17 @@
   import Scene from '../components/Scene.svelte';
   import TopBar from '../components/TopBar.svelte';
   import ActionIcon from '../components/ActionIcon.svelte';
+  import Glyph from '../components/Glyph.svelte';
   import { ACTIONS, DICE_MODES, type ActionId, type DiceModeId } from '../../shared/game';
   import { go } from '../lib/router.svelte';
 
   const steps = [
-    ['⚙️', 'Configuración', 'Elige el modo de dado y los ajustes.'],
-    ['🎁', 'Reparto inicial', 'La app dice a cada uno a quién darle su regalo.'],
-    ['🎲', 'Turnos', 'Por turnos, tirad el dado y haced la acción… o pulsad «Paso».'],
-    ['⏱️', 'Temporizador', 'Jugad hasta que se acabe el tiempo (por defecto, 15 min).'],
-    ['🏆', 'Final', 'Revelación de quién se queda qué regalo.']
-  ];
+    ['gear', 'Configuración', 'Elige el modo de dado y los ajustes.'],
+    ['gift', 'Reparto inicial', 'La app dice a cada uno a quién darle su regalo.'],
+    ['die', 'Turnos', 'Por turnos, tirad el dado y haced la acción… o pulsad «Paso».'],
+    ['clock', 'Temporizador', 'Jugad hasta que se acabe el tiempo (por defecto, 15 min).'],
+    ['trophy', 'Final', 'Revelación de quién se queda qué regalo.']
+  ] as const;
   const actions = Object.keys(ACTIONS) as ActionId[];
 </script>
 
@@ -22,7 +23,7 @@
       {#each steps as [icon, title, text], i}
         <li>
           <span class="num">{i + 1}</span>
-          <span class="ico" aria-hidden="true">{icon}</span>
+          <span class="ico"><Glyph name={icon} size={30} /></span>
           <span><strong>{title}</strong><br /><small>{text}</small></span>
         </li>
       {/each}
