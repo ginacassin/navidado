@@ -1,0 +1,16 @@
+# Para desplegar como «Compose» en Dokploy (o en local con `docker compose up -d`).
+# En Dokploy: añade el dominio en la pestaña Domains (servicio navidado, puerto 3000) y haz redeploy.
+services:
+  navidado:
+    build: .
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      - PORT=3000
+      - DATA_DIR=/data
+    volumes:
+      - navidado-data:/data
+
+volumes:
+  navidado-data:
