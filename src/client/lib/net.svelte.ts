@@ -146,7 +146,6 @@ export async function join(code: string, name: string, avatar: string, hostToken
 
 export const send = {
   roll: () => call('game:roll'),
-  pass: () => call('game:pass'),
   target: (targetId: string) => call('game:target', { targetId }),
   direction: (dir: 'left' | 'right') => call('game:direction', { dir }),
   seatWarning: () => call('player:seatWarning'),
@@ -163,5 +162,6 @@ export const host = {
   resume: () => call('host:resume'),
   undo: () => call('host:undo'),
   end: () => call('host:end'),
+  skip: () => call('host:skip'),
   rematch: () => call('host:rematch')
 };

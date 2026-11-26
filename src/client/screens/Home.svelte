@@ -4,16 +4,17 @@
   import Gift from '../components/Gift.svelte';
   import { go } from '../lib/router.svelte';
   import { hasSoloGame } from '../lib/solo.svelte';
+  const big = typeof matchMedia !== 'undefined' && matchMedia('(min-width: 900px) and (min-height: 700px)').matches;
 </script>
 
-<Scene hills>
+<Scene hills branches>
   <div class="home">
     <div class="logo-wrap">
-      <Logo size="lg" />
+      <Logo size={big ? 'xl' : 'lg'} />
       <div class="gifts" aria-hidden="true">
-        <span class="g1"><Gift size={54} /></span>
-        <span class="g2"><Gift size={40} tone="green" /></span>
-        <span class="g3"><Gift size={46} tone="gold" /></span>
+        <span class="g1"><Gift size={big ? 74 : 54} /></span>
+        <span class="g2"><Gift size={big ? 56 : 40} tone="green" /></span>
+        <span class="g3"><Gift size={big ? 64 : 46} tone="gold" /></span>
       </div>
     </div>
     <div class="actions">
@@ -62,9 +63,19 @@
   .g3 {
     transform: rotate(7deg);
   }
+  @media (min-width: 900px) and (min-height: 700px) {
+    .home {
+      justify-content: center;
+      gap: 40px;
+      padding-bottom: 140px;
+    }
+    .logo-wrap {
+      margin-top: 0;
+    }
+  }
   .actions {
     width: 100%;
-    max-width: 320px;
+    max-width: 340px;
     display: flex;
     flex-direction: column;
     gap: 14px;

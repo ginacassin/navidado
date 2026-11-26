@@ -8,7 +8,7 @@ import {
   giftOf,
   leftOf,
   newGame,
-  pass,
+  skipTurn,
   pause,
   remainingMs,
   reorderPlayers,
@@ -141,8 +141,8 @@ describe('Me lo quedo y límites de robo', () => {
     s = roll(s, 'p1', seq(faceRng(2)), T0 + 2000); // robo
     expect(eligibleTargets(s, 'p1')).not.toContain('p0');
     s = chooseTarget(s, 'p1', 'p2', T0 + 3000);
-    s = pass(s, 'p2', T0 + 4000);
-    s = pass(s, 'p3', T0 + 5000);
+    s = skipTurn(s, T0 + 4000);
+    s = skipTurn(s, T0 + 5000);
     expect(s.pending?.playerId).toBe('p0');
     expect(s.players[0].isProtected).toBe(false);
   });
@@ -157,23 +157,20 @@ describe('Me lo quedo y límites de robo', () => {
 });
 
 describe('turnos, paso y tiempo', () => {
-  it('Paso no cambia nada y pasa el turno', () => {
+  it('no hay límite de tiempo para tirar', () => {
     let s = setup(4);
-    const before = holders(s);
-    s = pass(s, 'p0', T0 + 1000);
-    expect(holders(s)).toEqual(before);
-    expect(s.pending?.playerId).toBe('p1');
+    const before = s;
+    s = tick(s, Math.random, T0 + 4 * 60_000);
+    expect(s).toBe(before);
+    expect(s.pending?.playerId).toBe('p0');
   });
 
-  it('si no tira a tiempo se salta el turno sin cambios', () => {
+  it('el anfitrión puede saltar un turno sin cambiar regalos', () => {
     let s = setup(4);
     const before = holders(s);
-    s = tick(s, Math.random, T0 + 19_000);
-    expect(s.pending?.playerId).toBe('p0');
-    s = tick(s, Math.random, T0 + 20_000);
-    expect(s.pending?.playerId).toBe('p1');
-    expect(s.events.at(-1)?.kind).toBe('timeout');
+    s = skipTurn(s, T0 + 1000);
     expect(holders(s)).toEqual(before);
+    expect(s.pending?.playerId).toBe('p1');
   });
 
   it('elección no hecha a tiempo se resuelve al azar', () => {

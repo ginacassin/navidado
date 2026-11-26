@@ -2,6 +2,7 @@
   import type { Snippet } from 'svelte';
   import Lights from './Lights.svelte';
   import Snow from './Snow.svelte';
+  import FirCorner from './FirCorner.svelte';
   let {
     children,
     hills = false,
@@ -9,7 +10,8 @@
     snow = true,
     pad = true,
     tone = 'green',
-    wide = false
+    wide = false,
+    branches = false
   }: {
     children: Snippet;
     hills?: boolean;
@@ -18,31 +20,44 @@
     pad?: boolean;
     tone?: 'green' | 'night' | 'red';
     wide?: boolean;
+    branches?: boolean;
   } = $props();
+  const firSize = typeof innerWidth !== 'undefined' && innerWidth > 900 ? 300 : 150;
 </script>
 
 <div class="scene {tone}" class:pad class:wide>
   <div class="bokeh" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
   {#if snow}<Snow />{/if}
   {#if lights}<Lights />{/if}
   <div class="content">{@render children()}</div>
+  {#if branches}
+    <FirCorner side="left" size={firSize} />
+    <FirCorner side="right" size={firSize} />
+  {/if}
   {#if hills}
-    <svg class="hills" viewBox="0 0 400 140" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-      <defs>
-        <linearGradient id="sc-snow1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4f9fd" /><stop offset="1" stop-color="#d3e3f0" /></linearGradient>
-        <linearGradient id="sc-snow2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" /><stop offset="1" stop-color="#e6eff7" /></linearGradient>
-        <linearGradient id="sc-tree" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0f5a36" /><stop offset="1" stop-color="#073b22" /></linearGradient>
-      </defs>
-      <path d="M0 78 Q70 48 140 70 T280 64 T400 56 V140 H0Z" fill="url(#sc-snow1)" />
-      {#each [[34, 70, 1], [58, 74, 0.8], [312, 62, 1.1], [344, 66, 0.85], [372, 58, 0.95]] as [x, y, k]}
-        <g transform="translate({x} {y}) scale({k})">
-          <path d="M0 -40 l13 20 h-6 l11 16 h-36 l11 -16 h-6 z" fill="url(#sc-tree)" />
-          <path d="M0 -40 l5 8 h-10z M-9 -18 h18 l-3 -3 h-12z" fill="#fff" opacity=".85" />
-          <rect x="-2" y="-4" width="4" height="6" fill="#4a2e16" />
-        </g>
+    <div class="ground" aria-hidden="true">
+      <svg class="snow-back" viewBox="0 0 400 100" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="sc-snow1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef5fb" /><stop offset="1" stop-color="#cfdfec" /></linearGradient>
+          <linearGradient id="sc-snow2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" /><stop offset="1" stop-color="#e3edf6" /></linearGradient>
+        </defs>
+        <path d="M0 44 Q70 18 140 36 T280 30 T400 24 V100 H0Z" fill="url(#sc-snow1)" />
+        <path d="M0 70 Q100 46 200 64 T400 56 V100 H0Z" fill="url(#sc-snow2)" />
+      </svg>
+      {#each [['left', [[30, 1], [62, 0.78], [96, 0.6]]], ['right', [[30, 1.05], [64, 0.8], [100, 0.62]]]] as [side, trees]}
+        <svg class="trees {side}" viewBox="0 0 140 90" aria-hidden="true">
+          <defs><linearGradient id="sc-tree-{side}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#11633b" /><stop offset="1" stop-color="#063a22" /></linearGradient></defs>
+          {#each trees as [x, k]}
+            <g transform="translate({side === 'right' ? 140 - Number(x) : x} 84) scale({k})">
+              <path d="M0 -76 l20 30 h-9 l17 24 h-10 l15 20 h-66 l15 -20 h-10 l17 -24 h-9 z" fill="url(#sc-tree-{side})" />
+              <path d="M0 -76 l7 10 h-14z M-11 -46 h22 l-4 -5 h-14z M-17 -22 h34 l-4 -5 h-26z" fill="#fff" opacity=".9" />
+              <rect x="-3" y="-2" width="6" height="7" fill="#4a2e16" />
+            </g>
+          {/each}
+        </svg>
       {/each}
-      <path d="M0 100 Q100 72 200 96 T400 88 V140 H0Z" fill="url(#sc-snow2)" />
-    </svg>
+    </div>
   {/if}
 </div>
 
@@ -91,13 +106,39 @@
   .pad .content {
     padding: 40px 18px calc(22px + env(safe-area-inset-bottom));
   }
-  .hills {
+  .ground {
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
-    width: 100%;
-    height: 150px;
+    height: 130px;
     z-index: 1;
+    pointer-events: none;
+  }
+  .snow-back {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .trees {
+    position: absolute;
+    bottom: 34px;
+    width: 140px;
+    height: 90px;
+  }
+  .trees.left {
+    left: 0;
+  }
+  .trees.right {
+    right: 0;
+  }
+  .grain {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.07;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 </style>

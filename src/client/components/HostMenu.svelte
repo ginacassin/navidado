@@ -6,6 +6,8 @@
     onresume,
     onundo,
     onend,
+    onskip,
+    skipName,
     label = 'Anfitrión'
   }: {
     paused: boolean;
@@ -14,6 +16,8 @@
     onresume: () => void;
     onundo: () => void;
     onend?: () => void;
+    onskip?: () => void;
+    skipName?: string;
     label?: string;
   } = $props();
   let open = $state(false);
@@ -27,6 +31,9 @@
         <button class="btn btn-primary btn-small" onclick={onresume}>▶ Seguir</button>
       {:else}
         <button class="btn btn-secondary btn-small" onclick={onpause}>⏸ Pausar</button>
+      {/if}
+      {#if onskip && skipName}
+        <button class="btn btn-secondary btn-small" onclick={onskip}>⏭ Saltar turno de {skipName}</button>
       {/if}
       <button class="btn btn-secondary btn-small" disabled={!canUndo} onclick={onundo}>↶ Deshacer última acción</button>
       {#if onend}

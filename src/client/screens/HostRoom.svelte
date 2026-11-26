@@ -91,7 +91,6 @@
       {now}
       meId={net.me}
       onroll={() => safe(send.roll())}
-      onpass={() => safe(send.pass())}
       ontarget={(id) => safe(send.target(id))}
       ondirection={(d) => safe(send.direction(d))}
     >
@@ -105,7 +104,7 @@
       {#snippet footer()}
         <div class="stack">
           {#if s.phase === 'playing'}
-            <HostMenu paused={s.paused} canUndo={!!net.snap?.canUndo} onpause={() => safe(host.pause())} onresume={() => safe(host.resume())} onundo={() => safe(host.undo())} onend={() => safe(host.end())} />
+            <HostMenu paused={s.paused} canUndo={!!net.snap?.canUndo} onpause={() => safe(host.pause())} onresume={() => safe(host.resume())} onundo={() => safe(host.undo())} onend={() => safe(host.end())} onskip={() => safe(host.skip())} skipName={s.pending?.kind === 'roll' ? s.players.find((p) => p.id === s.pending?.playerId)?.name : undefined} />
           {/if}
           <button class="btn btn-ghost" onclick={() => (tvMode = true)}>Ver la mesa en grande</button>
         </div>
@@ -118,7 +117,7 @@
     {#if s.phase === 'deal'}
       <button class="btn btn-primary btn-small" onclick={() => safe(host.start())}>¡Todos tienen su regalo, a jugar!</button>
     {:else if s.phase === 'playing'}
-      <HostMenu paused={s.paused} canUndo={!!net.snap?.canUndo} onpause={() => safe(host.pause())} onresume={() => safe(host.resume())} onundo={() => safe(host.undo())} onend={() => safe(host.end())} />
+      <HostMenu paused={s.paused} canUndo={!!net.snap?.canUndo} onpause={() => safe(host.pause())} onresume={() => safe(host.resume())} onundo={() => safe(host.undo())} onend={() => safe(host.end())} onskip={() => safe(host.skip())} skipName={s.pending?.kind === 'roll' ? s.players.find((p) => p.id === s.pending?.playerId)?.name : undefined} />
     {:else if s.phase === 'finished'}
       <button class="btn btn-primary btn-small" onclick={() => safe(host.rematch())}>Revancha</button>
     {/if}

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { DICE_MODES, pendingRemainingMs, playerName, remainingMs, type GameState } from '../../shared/game';
-  import Dice from './Dice.svelte';
+  import Die3D from './Die3D.svelte';
   import TimerChip from './TimerChip.svelte';
   import Logo from './Logo.svelte';
   import Avatar from './Avatar.svelte';
@@ -13,8 +13,7 @@
     myTurn,
     solo = false,
     rolling = false,
-    onroll,
-    onpass
+    onroll
   }: {
     s: GameState;
     now: number;
@@ -22,14 +21,12 @@
     solo?: boolean;
     rolling?: boolean;
     onroll: () => void;
-    onpass: () => void;
   } = $props();
 
   const faces = $derived(DICE_MODES[s.config.diceMode].faces);
   const current = $derived(s.pending ? s.players.find((p) => p.id === s.pending!.playerId) : undefined);
   const face = $derived(s.lastRoll?.face ?? Math.max(0, faces.indexOf('nothing')));
-  const turnMs = $derived(s.pending?.kind === 'roll' ? pendingRemainingMs(s, now) : 0);
-  const secs = $derived(Math.ceil(turnMs / 1000));
+  const secs = $derived(Math.ceil(pendingRemainingMs(s, now) / 1000));
   const canAct = $derived(myTurn && !rolling && s.pending?.kind === 'roll' && !s.paused);
 
   let stopShake: (() => void) | null = null;
@@ -67,18 +64,13 @@
     </div>
   {/if}
 
-  <div class="dice"><Dice {faces} {face} rollKey={s.lastRoll?.seq ?? 0} size={190} glow={canAct} onclick={canAct ? onroll : undefined} /></div>
+  <div class="dice"><Die3D {faces} {face} rollKey={s.lastRoll?.seq ?? 0} size={250} glow={canAct} onclick={canAct ? onroll : undefined} /></div>
 
   {#if myTurn}
     <div class="btns" class:hidden={rolling}>
       <button class="btn btn-primary" disabled={!canAct} onclick={onroll}>Tirar el dado</button>
-      <button class="btn btn-secondary" disabled={!canAct} onclick={onpass}>Paso</button>
     </div>
-    {#if !rolling && s.pending?.kind === 'roll'}
-      <p class="count" class:hurry={secs <= 5}>
-        {s.paused ? 'Partida en pausa' : `Te quedan ${secs} s para tirar`}
-      </p>
-    {/if}
+    {#if s.paused}<p class="count">Partida en pausa</p>{/if}
     {#if canShake}
       <button class="shake" onclick={toggleShake}>
         {shakeOn ? '📳 Agitar activado: agita el móvil para tirar' : 'También puedes agitar el móvil (toca para activarlo)'}
@@ -86,10 +78,10 @@
     {:else}
       <p class="hint">También puedes agitar el móvil</p>
     {/if}
-  {:else if current && s.pending?.kind === 'roll' && !rolling}
-    <p class="count">{s.paused ? 'Partida en pausa' : `Tiene ${secs} s para tirar`}</p>
+  {:else if s.paused}
+    <p class="count">Partida en pausa</p>
   {:else if s.pending && s.pending.kind !== 'roll' && !rolling}
-    <p class="count">{playerName(s, s.pending.playerId)} está eligiendo…</p>
+    <p class="count">{playerName(s, s.pending.playerId)} está eligiendo… ({secs} s)</p>
   {/if}
 </div>
 
@@ -144,17 +136,10 @@
   .btns.hidden {
     visibility: hidden;
   }
-  .btns .btn-secondary {
-    min-height: 48px;
-  }
   .count {
     margin: 4px 0 0;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.9);
-  }
-  .count.hurry {
-    color: var(--dorado);
-    font-weight: 800;
   }
   .hint,
   .shake {

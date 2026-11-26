@@ -17,7 +17,7 @@ const assert = (c, m) => {
 const hostDev = connect();
 let last;
 hostDev.on('room:state', (s) => (last = s));
-const { code, hostToken } = await call(hostDev, 'room:create', { config: { durationMin: 5, rollSeconds: 10 } });
+const { code, hostToken } = await call(hostDev, 'room:create', { config: { durationMin: 5 } });
 console.log('Sala', code);
 await call(hostDev, 'room:watch', { code, hostToken });
 
@@ -72,7 +72,8 @@ for (let i = 0; i < 40; i++) {
   const pend = st.pending;
   const p = byId[pend.playerId];
   if (pend.kind === 'roll') {
-    await call(p.s, i % 7 === 3 ? 'game:pass' : 'game:roll');
+    if (i % 7 === 3) await call(hostDev, 'host:skip');
+    else await call(p.s, 'game:roll');
     turns++;
   } else if (pend.kind === 'chooseTarget') {
     const target = st.players.find((x) => x.id !== p.id && !x.isProtected);

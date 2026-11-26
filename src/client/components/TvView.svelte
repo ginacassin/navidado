@@ -1,7 +1,7 @@
 <script lang="ts">
   import { DICE_MODES, giftOf, playerName, remainingMs, timerLabel, timerState, type GameState } from '../../shared/game';
   import Logo from './Logo.svelte';
-  import Dice from './Dice.svelte';
+  import Die3D from './Die3D.svelte';
   import TimerChip from './TimerChip.svelte';
   import Avatar from './Avatar.svelte';
   import QrCode from './QrCode.svelte';
@@ -11,6 +11,7 @@
   import Trophy from './Trophy.svelte';
   import Lights from './Lights.svelte';
   import Snow from './Snow.svelte';
+  import FirCorner from './FirCorner.svelte';
 
   let { s, now, code }: { s: GameState; now: number; code: string } = $props();
   const ms = $derived(remainingMs(s, now));
@@ -24,8 +25,9 @@
 </script>
 
 <div class="tv {s.phase} t-{tst}" class:lastmin={s.phase === 'playing' && tst === 'last'}>
-  <Lights height={64} />
   <Snow count={40} />
+  {#if !(s.phase === 'playing' && tst === 'last')}<FirCorner side="left" size={340} /><FirCorner side="right" size={340} />{/if}
+  <Lights height={64} />
 
   {#if s.phase === 'lobby'}
     <div class="lobby">
@@ -88,7 +90,7 @@
             <Feed {s} max={5} />
           {/if}
         </div>
-        <div class="dice"><Dice {faces} {face} rollKey={s.lastRoll?.seq ?? 0} size={470} /></div>
+        <div class="dice"><Die3D {faces} {face} rollKey={s.lastRoll?.seq ?? 0} size={520} /></div>
         <div class="side right">
           {#if current}
             <div class="card whose">

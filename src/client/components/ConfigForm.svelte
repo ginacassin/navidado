@@ -50,12 +50,6 @@
     </select>
   </label>
   <label class="field">
-    <span>Tiempo para tirar</span>
-    <select bind:value={config.rollSeconds}>
-      {#each [10, 15, 20, 30, 45, 60] as v}<option value={v}>{v} segundos</option>{/each}
-    </select>
-  </label>
-  <label class="field">
     <span>Tiempo para elegir</span>
     <select bind:value={config.chooseSeconds}>
       {#each [5, 10, 15, 20, 30] as v}<option value={v}>{v} segundos</option>{/each}

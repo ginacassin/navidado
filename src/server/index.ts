@@ -85,7 +85,7 @@ const serveStatic = existsSync(clientDir)
       etag: true,
       setHeaders(res, path) {
         if (path.startsWith('/assets/')) res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-        else res.setHeader('Cache-Control', 'no-cache');
+        else res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
       }
     })
   : null;
@@ -249,6 +249,7 @@ io.on('connection', (socket) => {
       commit(r, G.restoreForUndo(prev, r.state, Date.now()), false);
     })
   );
+  socket.on('host:skip', guarded(socket, true, (r) => commit(r, G.skipTurn(r.state, Date.now()))));
   socket.on('host:end', guarded(socket, true, (r) => commit(r, G.endNow(r.state, G.cryptoRng, Date.now()))));
   socket.on(
     'host:rematch',
@@ -260,7 +261,6 @@ io.on('connection', (socket) => {
 
   // --- jugador ---
   socket.on('game:roll', guarded(socket, false, (r, s) => commit(r, G.roll(r.state, needPlayer(s), G.cryptoRng, Date.now()))));
-  socket.on('game:pass', guarded(socket, false, (r, s) => commit(r, G.pass(r.state, needPlayer(s), Date.now()))));
   socket.on(
     'game:target',
     guarded(socket, false, (r, s, p: { targetId: string }) => commit(r, G.chooseTarget(r.state, needPlayer(s), p.targetId, Date.now())))

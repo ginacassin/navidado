@@ -68,7 +68,7 @@
       <ul class="summary">
         <li><span>Modo de dado</span><strong>{DICE_MODES[s.config.diceMode].name}</strong> <ModeFaces mode={s.config.diceMode} size={18} /></li>
         <li><span>Duración</span><strong>{s.config.durationMin} min</strong></li>
-        <li><span>Para tirar / elegir</span><strong>{s.config.rollSeconds} s / {s.config.chooseSeconds} s</strong></li>
+        <li><span>Tiempo para elegir</span><strong>{s.config.chooseSeconds} s</strong></li>
         <li><span>Límite de robos</span><strong>{STEAL_LIMITS[s.config.stealLimit]}</strong></li>
       </ul>
     {/if}

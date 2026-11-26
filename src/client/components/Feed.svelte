@@ -9,7 +9,7 @@
   <ul class="feed" class:light aria-label="Últimas jugadas">
     {#each items as e (e.seq)}
       <li>
-        {#if e.action}<ActionIcon action={e.action} size={20} />{:else}<span class="dot" aria-hidden="true">{e.kind === 'pass' ? '✋' : '⏱'}</span>{/if}
+        {#if e.action}<ActionIcon action={e.action} size={20} />{:else}<span class="dot" aria-hidden="true">{e.kind === 'pass' ? '⏭' : '⏱'}</span>{/if}
         <span>{e.text}</span>
       </li>
     {/each}

@@ -5,6 +5,8 @@ El juego de regalos más divertido de la Navidad: se tira un dado y, según lo q
 - **Un solo móvil**: un teléfono hace de dado y de mesa y se pasa de mano en mano. Funciona sin conexión una vez cargada la página.
 - **Sala tipo Jackbox**: el anfitrión crea una sala (TV, portátil o móvil) y el resto se une con un QR o un código de 4 letras. El anfitrión también puede jugar. Hay una vista de TV en `/tv/CÓDIGO`.
 
+El dado es 3D real (WebGL con three.js, cargado aparte); en dispositivos sin WebGL se usa la versión vectorial.
+
 Diseño de referencia: [`docs/design-board.png`](docs/design-board.png) y su descripción en [`docs/design-board.md`](docs/design-board.md).
 
 ## Reglas implementadas
@@ -18,7 +20,7 @@ Diseño de referencia: [`docs/design-board.png`](docs/design-board.png) y su des
 | Mínimo | Derecha | Izquierda | Robo | ¡Feliz Navidad! | ¡Feliz Navidad! | ¡Feliz Navidad! |
 
 - Turnos en el sentido de las agujas del reloj. La izquierda de cada jugador es el siguiente en el orden de asientos y la derecha, el anterior.
-- En cada turno se puede tirar o pulsar **Paso**. Si no se tira en el tiempo configurado (20 s por defecto), se salta el turno y no pasa nada.
+- No hay límite de tiempo para tirar ni opción de pasar. Si alguien no está, el anfitrión puede saltar su turno desde su menú.
 - Para elegir a quién robar, o la dirección del remolino, hay 15 s. Si se agotan, la app elige al azar.
 - **Temporizador de partida** (15 min por defecto). Muestra solo los minutos hasta los 3 últimos. A los 3 y a los 2 minutos avisa con vibración y un mensaje. El último minuto aparece en rojo y con segundos. Al llegar a 0:00 suena la campanada, se resuelve la elección en curso y se pasa al final.
 - Los regalos no llevan etiquetas: la app habla de personas («Dale tu regalo a Ana; ella te da el suyo») y sigue cada paquete por quién lo trajo.
@@ -40,6 +42,8 @@ Estructura:
 - `src/shared/game.ts`: motor de juego puro, compartido por el cliente y el servidor.
 - `src/server/index.ts`: servidor HTTP con Socket.IO. Las salas viven en memoria y se guardan en `DATA_DIR/rooms.json` cada 5 s y al apagar el servidor.
 - `src/client/`: interfaz en Svelte 5. Está en `screens/` y `components/`.
+
+Caché: cada build lleva un identificador (`BUILD_ID`, por defecto la fecha). El service worker usa una caché nueva por versión y la página se recarga sola cuando hay una versión nueva; `index.html` y `sw.js` se sirven sin caché.
 
 Variables de entorno:
 

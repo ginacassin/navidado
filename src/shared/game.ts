@@ -66,7 +66,6 @@ export const STEAL_LIMITS: Record<StealLimit, string> = {
 export interface GameConfig {
   diceMode: DiceModeId;
   durationMin: number;
-  rollSeconds: number;
   chooseSeconds: number;
   stealLimit: StealLimit;
   showBroughtBy: boolean;
@@ -75,7 +74,6 @@ export interface GameConfig {
 export const DEFAULT_CONFIG: GameConfig = {
   diceMode: 'clasico',
   durationMin: 15,
-  rollSeconds: 20,
   chooseSeconds: 15,
   stealLimit: 'none',
   showBroughtBy: true
@@ -85,7 +83,6 @@ export const LIMITS = {
   minPlayers: 3,
   maxPlayers: 30,
   durationMin: [5, 45] as const,
-  rollSeconds: [10, 60] as const,
   chooseSeconds: [5, 30] as const
 };
 
@@ -112,6 +109,7 @@ export interface Pending {
   kind: 'roll' | 'chooseTarget' | 'chooseDirection';
   playerId: string;
   action?: ActionId;
+  /** Límite para elegir (ms). En las tiradas es 0: no hay límite de tiempo para tirar. */
   deadline: number;
 }
 
@@ -196,7 +194,6 @@ export function sanitizeConfig(c: Partial<GameConfig>): GameConfig {
   return {
     diceMode: base.diceMode in DICE_MODES ? base.diceMode : 'clasico',
     durationMin: clamp(Number(base.durationMin) || 15, LIMITS.durationMin),
-    rollSeconds: clamp(Number(base.rollSeconds) || 20, LIMITS.rollSeconds),
     chooseSeconds: clamp(Number(base.chooseSeconds) || 15, LIMITS.chooseSeconds),
     stealLimit: base.stealLimit in STEAL_LIMITS ? base.stealLimit : 'none',
     showBroughtBy: base.showBroughtBy !== false
@@ -278,7 +275,7 @@ export function timerLabel(ms: number): string {
 }
 
 export function pendingRemainingMs(s: GameState, now: number): number {
-  if (!s.pending) return 0;
+  if (!s.pending || s.pending.kind === 'roll') return 0;
   if (s.paused) return s.pausedPendingRemaining ?? 0;
   return Math.max(0, s.pending.deadline - now);
 }
@@ -386,7 +383,7 @@ export function startPlaying(state: GameState, rng: Rng, now: number): GameState
 function beginTurn(s: GameState, now: number) {
   const p = s.players[s.turn];
   p.isProtected = false; // la protección dura hasta su siguiente turno
-  s.pending = { kind: 'roll', playerId: p.id, deadline: now + s.config.rollSeconds * 1000 };
+  s.pending = { kind: 'roll', playerId: p.id, deadline: 0 };
 }
 
 function advance(s: GameState, now: number) {
@@ -563,11 +560,14 @@ export function roll(state: GameState, playerId: string, rng: Rng, now: number):
   return s;
 }
 
-export function pass(state: GameState, playerId: string, now: number): GameState {
+/** El anfitrión salta el turno de quien debe tirar (por ejemplo, si no está). No cambia ningún regalo. */
+export function skipTurn(state: GameState, now: number): GameState {
   const s = clone(state);
-  assertTurn(s, playerId, 'roll', now);
+  if (!s.pending || s.pending.kind !== 'roll') throw new GameError('Solo se puede saltar un turno antes de tirar');
+  const id = s.pending.playerId;
+  assertTurn(s, id, 'roll', now);
   s.lastSteal = undefined;
-  pushEvent(s, now, { kind: 'pass', playerId, text: `${playerName(s, playerId)} pasa: no pasa nada`, instructions: {} });
+  pushEvent(s, now, { kind: 'pass', playerId: id, text: `Turno de ${playerName(s, id)} saltado por el anfitrión`, instructions: {} });
   advance(s, now);
   return s;
 }
@@ -627,7 +627,7 @@ function finish(s: GameState, now: number, rng: Rng) {
 export function tick(state: GameState, rng: Rng, now: number): GameState {
   if (state.phase !== 'playing' || state.paused) return state;
   const timeUp = (state.endsAt ?? Infinity) <= now;
-  const expired = state.pending && state.pending.deadline <= now;
+  const expired = !!state.pending && state.pending.kind !== 'roll' && state.pending.deadline <= now;
   if (!timeUp && !expired) return state;
   const s = clone(state);
   if (timeUp) {
@@ -635,18 +635,7 @@ export function tick(state: GameState, rng: Rng, now: number): GameState {
     finish(s, now, rng);
     return s;
   }
-  const p = s.pending!;
-  if (p.kind === 'roll') {
-    s.lastSteal = undefined;
-    pushEvent(s, now, {
-      kind: 'timeout',
-      playerId: p.playerId,
-      text: `Se acabó el tiempo de ${playerName(s, p.playerId)}: turno saltado`,
-      instructions: {}
-    });
-  } else {
-    autoResolve(s, now, rng);
-  }
+  autoResolve(s, now, rng);
   advance(s, now);
   return s;
 }
@@ -674,7 +663,7 @@ export function resume(state: GameState, now: number): GameState {
   if (s.phase !== 'playing' || !s.paused) return s;
   s.paused = false;
   s.endsAt = now + (s.pausedRemaining ?? 0);
-  if (s.pending) s.pending.deadline = now + Math.max(3000, s.pausedPendingRemaining ?? 0);
+  if (s.pending && s.pending.kind !== 'roll') s.pending.deadline = now + Math.max(3000, s.pausedPendingRemaining ?? 0);
   s.pausedRemaining = undefined;
   s.pausedPendingRemaining = undefined;
   pushEvent(s, now, { kind: 'system', text: 'Seguimos jugando', instructions: {} });
@@ -688,10 +677,9 @@ export function restoreForUndo(prev: GameState, current: GameState, now: number)
   s.paused = current.paused;
   s.endsAt = current.endsAt;
   s.pausedRemaining = current.pausedRemaining;
-  if (s.pending) {
-    const secs = s.pending.kind === 'roll' ? s.config.rollSeconds : s.config.chooseSeconds;
-    s.pending.deadline = now + secs * 1000;
-    s.pausedPendingRemaining = current.paused ? secs * 1000 : undefined;
+  if (s.pending && s.pending.kind !== 'roll') {
+    s.pending.deadline = now + s.config.chooseSeconds * 1000;
+    s.pausedPendingRemaining = current.paused ? s.config.chooseSeconds * 1000 : undefined;
   }
   s.seq = Math.max(s.seq, current.seq);
   pushEvent(s, now, { kind: 'system', text: 'El anfitrión ha deshecho la última acción', instructions: {} });

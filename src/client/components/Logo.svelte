@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Dice from './Dice.svelte';
+  import Die3D from './Die3D.svelte';
   let { size = 'lg', tagline = true, dice = true }: { size?: 'sm' | 'md' | 'lg' | 'xl'; tagline?: boolean; dice?: boolean } =
     $props();
   const width = { sm: 150, md: 230, lg: 320, xl: 520 };
@@ -8,7 +8,7 @@
 
 <div class="logo" style="--w:{width[size]}px">
   {#if dice}
-    <div class="die"><Dice variant="pips" hat size={width[size] * 0.34} /></div>
+    <div class="die"><Die3D variant="pips" hat bob face={0} size={Math.round(width[size] * 0.42)} label="Dado con gorro de Papá Noel" /></div>
   {/if}
   <svg class="word" viewBox="0 0 520 150" role="img" aria-label="Navidado">
     <defs>
@@ -71,8 +71,8 @@
   }
   .die {
     align-self: flex-start;
-    margin-left: 8%;
-    margin-bottom: calc(var(--w) * -0.1);
+    margin-left: 4%;
+    margin-bottom: calc(var(--w) * -0.11);
     position: relative;
     z-index: 0;
   }

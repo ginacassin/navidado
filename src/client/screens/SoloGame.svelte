@@ -58,7 +58,6 @@
       {now}
       solo
       onroll={() => play((st) => G.roll(st, st.pending!.playerId, rng, Date.now()))}
-      onpass={() => play((st) => G.pass(st, st.pending!.playerId, Date.now()))}
       ontarget={(id) => play((st) => G.chooseTarget(st, st.pending!.playerId, id, Date.now()))}
       ondirection={(d) => play((st) => G.chooseDirection(st, st.pending!.playerId, d, Date.now()))}
     >
@@ -79,6 +78,8 @@
             onresume={() => act((st) => G.resume(st, Date.now()))}
             onundo={() => { const prev = soloHistory.pop(); if (prev) act((st) => G.restoreForUndo(prev, st, Date.now())); }}
             onend={() => act((st) => G.endNow(st, rng, Date.now()))}
+            onskip={() => play((st) => G.skipTurn(st, Date.now()))}
+            skipName={s.pending?.kind === 'roll' ? s.players.find((p) => p.id === s.pending?.playerId)?.name : undefined}
           />
         {/if}
       {/snippet}

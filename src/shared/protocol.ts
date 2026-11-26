@@ -26,9 +26,9 @@ export interface ClientToServer {
   'host:resume': (p: {}, ack: Ack) => void;
   'host:undo': (p: {}, ack: Ack) => void;
   'host:end': (p: {}, ack: Ack) => void;
+  'host:skip': (p: {}, ack: Ack) => void;
   'host:rematch': (p: {}, ack: Ack) => void;
   'game:roll': (p: {}, ack: Ack) => void;
-  'game:pass': (p: {}, ack: Ack) => void;
   'game:target': (p: { targetId: string }, ack: Ack) => void;
   'game:direction': (p: { dir: Direction }, ack: Ack) => void;
   'player:seatWarning': (p: {}, ack: Ack) => void;

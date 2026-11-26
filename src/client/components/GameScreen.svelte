@@ -19,7 +19,6 @@
     meId = null,
     solo = false,
     onroll,
-    onpass,
     ontarget,
     ondirection,
     dealActions,
@@ -31,7 +30,6 @@
     meId?: string | null;
     solo?: boolean;
     onroll: () => void;
-    onpass: () => void;
     ontarget: (id: string) => void;
     ondirection: (d: Direction) => void;
     dealActions?: Snippet;
@@ -68,7 +66,7 @@
       }
       for (const ev of fresh) {
         if (ev.kind !== 'action') {
-          if ((ev.kind === 'pass' || ev.kind === 'timeout') && !(meId && ev.playerId === meId)) showBanner(ev.text, 'info', 2500);
+          if (ev.kind === 'pass') showBanner(ev.text, 'info', 2500);
           continue;
         }
         const instruction = meId ? ev.instructions[meId] : undefined;
@@ -134,7 +132,7 @@
   {:else if !rolling && myTurn && s.pending?.kind === 'chooseDirection'}
     <ChooseDirection {s} {now} actorName={solo ? actorName : undefined} onpick={ondirection} />
   {:else}
-    <TurnPanel {s} {now} myTurn={myTurn && s.pending?.kind === 'roll'} {solo} {rolling} {onroll} {onpass} />
+    <TurnPanel {s} {now} myTurn={myTurn && s.pending?.kind === 'roll'} {solo} {rolling} {onroll} />
     <div class="feed"><Feed {s} /></div>
   {/if}
 {/if}

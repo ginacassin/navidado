@@ -104,7 +104,6 @@
       {now}
       meId={net.me}
       onroll={() => safe(send.roll())}
-      onpass={() => safe(send.pass())}
       ontarget={(id) => safe(send.target(id))}
       ondirection={(d) => safe(send.direction(d))}
     >
@@ -123,7 +122,7 @@
             onpause={() => safe(host.pause())}
             onresume={() => safe(host.resume())}
             onundo={() => safe(host.undo())}
-            onend={() => safe(host.end())}
+            onend={() => safe(host.end())} onskip={() => safe(host.skip())} skipName={s.pending?.kind === 'roll' ? s.players.find((p) => p.id === s.pending?.playerId)?.name : undefined}
           />
         {/if}
       {/snippet}

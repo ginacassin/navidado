@@ -9,7 +9,7 @@
   const steps = [
     ['gear', 'Configuración', 'Elige el modo de dado y los ajustes.'],
     ['gift', 'Reparto inicial', 'La app dice a cada uno a quién darle su regalo.'],
-    ['die', 'Turnos', 'Por turnos, tirad el dado y haced la acción… o pulsad «Paso».'],
+    ['die', 'Turnos', 'Por turnos, cada uno tira el dado y hace lo que diga.'],
     ['clock', 'Temporizador', 'Jugad hasta que se acabe el tiempo (por defecto, 15 min).'],
     ['trophy', 'Final', 'Revelación de quién se queda qué regalo.']
   ] as const;
